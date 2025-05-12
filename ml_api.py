@@ -20,29 +20,6 @@ review_collection = db["reviewproduct"]
 # Load mô hình ML từ đường dẫn cụ thể (mới nhất)
 model = joblib.load("C:\\Users\\FPT SHOP\\ecommerce_microservices\\ML\\final_trending_model.pkl")
 
-@app.route("/predict-trending-products", methods=["POST"])
-def predict_trending():
-    try:
-        data = request.get_json()
-        df = pd.DataFrame(data)
-
-        required_columns = [
-            "rating_avg", "sale_quantity", "view_count",
-            "product_id", "name"
-        ]
-        for col in required_columns:
-            if col not in df.columns:
-                return jsonify({"error": f"Thiếu cột: {col}"}), 400
-
-        X = df[["rating_avg", "sale_quantity", "view_count"]]
-        predictions = model.predict(X)
-        df["is_trending"] = predictions
-
-        trending_products = df[df["is_trending"] == 1][["product_id", "name"]]
-        return trending_products.to_json(orient="records", force_ascii=False)
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
 
 @app.route("/predict-trending-from-db", methods=["GET"])
 def predict_trending_from_db():
